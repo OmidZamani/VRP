@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>بهینه سازی مسیر</title>
+
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/shipito.png') }}"/>
+  <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/fontawesome/all.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/bootstrap/bootstrap-grid.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/bootstrap/bootstrap-grid.rtl.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/bootstrap/bootstrap-reboot.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/bootstrap/bootstrap-reboot.rtl.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/bootstrap/bootstrap-utilities.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/bootstrap/bootstrap-utilities.rtl.min.css') }}" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+  <!-- <link
+			href="https://cdn.parsimap.ir/third-party/leaflet/v1.7.1/mapbox-gl.css"
+			rel="stylesheet"
+	/> -->
+
+  <script src="https://cdn.parsimap.ir/third-party/leaflet/v1.7.1/leaflet.js"></script>
+  <script src="https://cdn.parsimap.ir/third-party/leaflet/plugins/parsimap-tile/v1.0.0/parsimap-tile.js"></script>
+
+
+</head>
+
+<body>
+
+  <div class="main-page">
+    <nav class="navbar fixed-top navbar-expand-lg bg-body-tertiary mb-5">
+      <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03"
+          aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+
+        <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" href="/routing/parsiMap">مسیریابی</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/router/parsiMap">بهینه سازی مسیر</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/geocoding/parsiMap">جستجو نقشه</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/matching/parsiMap">نوع ناوگان</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/matrix">ماتریس نقشه</a>
+            </li>
+            <li class="nav-item navbar-setting">
+              <a class="nav-link" href="/setting">تنظیمات</a>
+            </li>
+          </ul>
+        </div>
+
+        <!--				<div class="switch-map">-->
+        <!--					<label>نشان</label>-->
+        <!--					<div class="form-check form-switch">-->
+        <!--						<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>-->
+        <!--					</div>-->
+        <!--					<label>پارسی مپ</label>-->
+        <!--				</div>-->
+
+        <a href="/routing/neshan">نشان</a>
+
+      </div>
+    </nav>
+
+    <div class="container">
+      <!--			<div class="api-key">-->
+      <!--				<div class="row">-->
+      <!--					<div class="col-12 col-lg-6">-->
+      <!--						<input type="text" placeholder="api key">-->
+      <!--					</div>-->
+      <!--					<div class="col-12 col-md-6 col-lg-3">-->
+      <!--						<div class="btn&#45;&#45;light">-->
+      <!--							<button class="btn-fill">-->
+      <!--								<span>اضافه کردن</span>-->
+      <!--							</button>-->
+      <!--						</div>-->
+      <!--					</div>-->
+      <!--					<div class="col-12 col-md-6 col-lg-3">-->
+      <!--						<div class="btn&#45;&#45;primary">-->
+      <!--							<button class="btn-fill">-->
+      <!--								<span>آپلود اکسل</span>-->
+      <!--							</button>-->
+      <!--						</div>-->
+      <!--					</div>-->
+      <!--				</div>-->
+      <!--			</div>-->
+
+      <div class="desc">
+        <p>کوتاه ترین مسیر بین دو نقطه را محاسبه کنید.</p>
+      </div>
+
+      <div class="map map-parsi" id="mapRouting"></div>
+      <!--			<div class="map map-neshan" id="mapRoutingNeshan"></div>-->
+
+    </div>
+
+		<footer class="py-3 bg-body-tertiary">
+			<p>از ابتدا تا انتها کنارتان هستیم</p>
+			<ul class="justify-content-center list-unstyled d-flex">
+				<li class="ms-3">
+					<a class="text-body-secondary" href="https://instagram.com/shipito.ir?igshid=YmMyMTA2M2Y=">
+						<svg xmlns="http://www.w3.org/2000/svg"  xmlns:xlink="http://www.w3.org/1999/xlink"  width="30" height="30" x="0" y="0" viewBox="0 0 24 24" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><linearGradient id="a" x1="-37.106" x2="-26.555" y1="-72.705" y2="-84.047" gradientTransform="matrix(0 -1.982 -1.844 0 -132.522 -51.077)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fd5"></stop><stop offset=".5" stop-color="#ff543e"></stop><stop offset="1" stop-color="#c837ab"></stop></linearGradient><path fill="url(#a)" d="M1.5 1.633C-.386 3.592 0 5.673 0 11.995c0 5.25-.916 10.513 3.878 11.752 1.497.385 14.761.385 16.256-.002 1.996-.515 3.62-2.134 3.842-4.957.031-.394.031-13.185-.001-13.587-.236-3.007-2.087-4.74-4.526-5.091C18.89.029 18.778.005 15.91 0 5.737.005 3.507-.448 1.5 1.633z" data-original="url(#a)" class=""></path><path fill="#ffffff" d="M11.998 3.139c-3.631 0-7.079-.323-8.396 3.057-.544 1.396-.465 3.209-.465 5.805 0 2.278-.073 4.419.465 5.804 1.314 3.382 4.79 3.058 8.394 3.058 3.477 0 7.062.362 8.395-3.058.545-1.41.465-3.196.465-5.804 0-3.462.191-5.697-1.488-7.375-1.7-1.7-3.999-1.487-7.374-1.487zm-.794 1.597c7.574-.012 8.538-.854 8.006 10.843-.189 4.137-3.339 3.683-7.211 3.683-7.06 0-7.263-.202-7.263-7.265 0-7.145.56-7.257 6.468-7.263zm5.524 1.471a1.063 1.063 0 1 0 0 2.126 1.063 1.063 0 0 0 0-2.126zm-4.73 1.243a4.55 4.55 0 1 0 .001 9.101 4.55 4.55 0 0 0-.001-9.101zm0 1.597c3.905 0 3.91 5.908 0 5.908-3.904 0-3.91-5.908 0-5.908z" data-original="#ffffff" class=""></path></g></svg>
+					</a>
+				</li>
+				<li class="ms-3">
+					<a class="text-body-secondary" href="http://app.shipito.ir/#/">
+						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"  width="30" height="30" x="0" y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path fill="#0052c2" d="M512 46c0-24.853-20.147-45-45-45H45C20.147 1 0 21.147 0 46v90l10 10h492l10-10z" data-original="#0052c2"></path><path fill="#003481" d="M512 46v90l-10 10H256V1h211c24.85 0 45 20.15 45 45z" data-original="#003481"></path><path fill="#0052c2" d="M436 61h-90c-8.284 0-15 6.716-15 15s6.716 15 15 15h90c8.284 0 15-6.716 15-15s-6.716-15-15-15z" data-original="#0052c2"></path><circle cx="196" cy="76" r="15" fill="#f03800" data-original="#f03800"></circle><circle cx="136" cy="76" r="15" fill="#fdbf00" data-original="#fdbf00"></circle><circle cx="76" cy="76" r="15" fill="#37d742" data-original="#37d742"></circle><path fill="#e0f4ff" d="M0 136v330c0 24.813 20.187 45 45 45h422c24.813 0 45-20.187 45-45V136z" data-original="#e0f4ff" class=""></path><path fill="#b8e0f5" d="M512 136v330c0 24.81-20.19 45-45 45H256V136z" data-original="#b8e0f5"></path><path fill="#ff641a" d="M306.909 197.213c-7.614-3.263-16.433.264-19.696 7.878l-90 210c-3.264 7.614.264 16.433 7.878 19.696 7.617 3.264 16.434-.266 19.696-7.878l90-210c3.264-7.615-.264-16.433-7.878-19.696z" data-original="#ff641a"></path><path fill="#f03800" d="M314.79 216.91 256 354.09v-76.18l31.21-72.82c3.27-7.61 12.08-11.14 19.7-7.88 7.61 3.27 11.14 12.08 7.88 19.7z" data-original="#f03800"></path><path fill="#ff641a" d="M175.37 364.287 115.012 316l60.358-48.287c6.47-5.175 7.518-14.614 2.343-21.083-5.176-6.469-14.617-7.517-21.083-2.342l-75 60c-7.499 5.997-7.504 17.424 0 23.426l75 60c6.469 5.176 15.91 4.126 21.083-2.342 5.175-6.471 4.127-15.91-2.343-21.085z" data-original="#ff641a"></path><path fill="#f03800" d="m430.37 304.287-75-60c-6.469-5.176-15.909-4.127-21.083 2.342-5.175 6.469-4.127 15.909 2.343 21.083L396.988 316l-60.358 48.287c-6.47 5.175-7.518 14.614-2.343 21.083 5.182 6.476 14.623 7.512 21.083 2.342l75-60c7.499-5.997 7.504-17.423 0-23.425z" data-original="#f03800"></path></g></svg>
+					</a>
+				</li>
+			</ul>
+		</footer>
+
+
+  </div>
+
+
+  <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/bootstrap/bootstrap.min.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/bootstrap/bootstrap.bundle.min.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/bootstrap/bootstrap.esm.min.js') }}"></script>
+
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+
+
+  <script type="text/javascript">
+
+    //init the map
+    var map = new L.Map('mapRouting', {
+      center: [35.699739, 51.338097],
+      zoom: 14
+    });
+
+    L.parsimapTileLayer('parsimap-streets-v11-raster', {
+      key: 'p1a17b4952e44846b5a486861f1f7c9153c49fdb24',
+    }).addTo(map)
+
+
+    // add legend
+    // ------------------------------
+    const legend = L.control({ position: "bottomleft" });
+
+    legend.onAdd = function () {
+      let div = L.DomUtil.create("div", "description");
+      L.DomEvent.disableClickPropagation(div);
+      const text = "Try to move one of the markers";
+      div.insertAdjacentHTML("beforeend", text);
+      return div;
+    };
+
+    legend.addTo(map);
+
+    // --------------------------------------------------
+    // Routing
+
+    L.Routing.control({
+      waypoints: [
+        L.latLng(35.68783608590657, 51.42249584197999),
+        L.latLng(35.69137739442236, 51.42862415326818),
+      ],
+      routeWhileDragging: true,
+      addWaypoints: false,
+      lineOptions: {
+        styles: [{ color: '#F7941D', opacity: 1 }]
+      },
+      createMarker: function (i, waypoint, n) {
+        return L.marker(waypoint.latLng, {
+          draggable: true,
+          icon: L.divIcon({
+            html: `<div class="view-svg-l-router">
+															<p class="text-num">${i + 1}</p>
+															<svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" x="0" y="0" viewBox="0 0 450 450" preserveAspectRatio="xMidYMid meet">
+															<g transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)"
+															fill='#F7941D' stroke="none">
+															<path d="M2335 4944 c-600 -81 -1107 -450 -1367 -994 -149 -312 -203 -703
+															-139 -991 129 -573 619 -1434 1423 -2501 98 -130 192 -248 209 -262 64 -55
+															153 -46 216 20 56 58 397 513 566 756 686 984 1048 1719 1073 2183 21 377
+															-125 822 -374 1135 -65 81 -215 231 -297 295 -369 290 -850 422 -1310 359z"/>
+															</g>
+															</svg>
+													</div>`,
+            className: "",
+            // iconSize: [30, 80],
+            iconAnchor: [0, 40],
+          })
+        })
+      }
+    }).addTo(map);
+
+
+    // document.getElementById('switch').addEventListener('change', (e) => {
+    //
+    //   const urlParsiMapCSS = 'https://cdn.parsimap.ir/third-party/leaflet/v1.7.1/mapbox-gl.css'
+    //   const urlParsiMapJS1 = './assets/js/parsiMap.min.js'
+    //   // const urlParsiMapJS2 = 'https://cdn.parsimap.ir/third-party/leaflet/plugins/parsimap-tile/v1.0.0/parsimap-tile.js'
+    // 	const urlNeshanCSS = 'https://static.neshan.org/sdk/leaflet/1.4.0/leaflet.css'
+    // 	const urlNeshanJS = './assets/js/neshan.min.js'
+    //
+    //   var linkElement = document.createElement("link");
+    //   linkElement.setAttribute("rel", "stylesheet");
+    //   linkElement.setAttribute("type", "text/css");
+    //
+    //   var scriptElement = document.createElement("script");
+    //   // scriptElement.setAttribute("type", "module");
+    //
+    //   let linkList = document.getElementsByTagName("link")
+    //   let scriptList = document.getElementsByTagName("script")
+    //
+    //   if(e.target.checked){
+    //
+    //     // for (const el of linkList) {
+    //     //   let includesLinkList = el['href'].includes('https://cdn.parsimap.ir')
+    //     //   includesLinkList && $(el).remove()
+    //     // }
+    //     for (const el of scriptList) {
+    //       let includesScriptList = el['src'].includes('parsiMap')
+    //       console.log('el', el)
+    //       includesScriptList && $(el).remove()
+    //     }
+    //
+    //     // linkElement.setAttribute("href", urlNeshanCSS);
+    //     // document.getElementsByTagName("head")[0].appendChild(linkElement);
+    //     scriptElement.setAttribute("src", urlNeshanJS);
+    //     document.getElementsByTagName("head")[0].appendChild(scriptElement);
+    //
+    //   }else{
+    //     // for (const el of linkList) {
+    //     //   let includesLinkList = el['href'].includes('https://static.neshan.org')
+    //     //   includesLinkList && $(el).remove()
+    //     // }
+    //     for (const el of scriptList) {
+    //       let includesScriptList = el['src'].includes('neshan')
+    //       console.log('el', el)
+    //       includesScriptList && $(el).remove()
+    //     }
+    //
+    //
+    //     // linkElement.setAttribute("href", urlParsiMapCSS);
+    //     // document.getElementsByTagName("head")[0].appendChild(linkElement)
+    //     scriptElement.setAttribute("src", urlParsiMapJS1);
+    //     document.getElementsByTagName("head")[0].appendChild(scriptElement);
+    //     // scriptElement.setAttribute("src", urlParsiMapJS2);
+    //     // document.getElementsByTagName("head")[0].appendChild(urlParsiMapJS2);
+    //   }
+    //
+    //   $( "#mapRouting" ).load(window.location.href + " #here" );
+    // })
+
+  </script>
+
+</body>
+
+</html>
