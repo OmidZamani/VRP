@@ -1,0 +1,36 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_DRIVER: overlay2
+  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  HARBOR_PROJECT: vrp
+  HARBOR_REGISTRY: 192.168.10.62
+  DEPLOY_SERVER: 192.168.10.18
+  DEPLOY_USER: devops
+  DEPLOY_PASSWORD: 1
+
+build:
+  stage: build
+  image: docker:19.03
+  services:
+    - docker:25.0.0-rc.2-dind
+  before_script:
+    - docker login -u devops-postex -p P@ssw0rd $HARBOR_REGISTRY
+  script:
+    - docker build -t $HARBOR_REGISTRY/$HARBOR_PROJECT/myapp:$IMAGE_TAG .
+    - docker push $HARBOR_REGISTRY/$HARBOR_PROJECT/myapp:$IMAGE_TAG
+
+deploy:
+  stage: deploy
+  script:
+    - apk add --no-cache openssh-client
+    - ssh-keyscan -H $DEPLOY_SERVER >> ~/.ssh/known_hosts
+    - sshpass -p $DEPLOY_PASSWORD ssh $DEPLOY_USER@$DEPLOY_SERVER "docker pull $HARBOR_REGISTRY/$HARBOR_PROJECT/myapp:$IMAGE_TAG"
+    - sshpass -p $DEPLOY_PASSWORD ssh $DEPLOY_USER@$DEPLOY_SERVER "docker stop myapp || true"
+    - sshpass -p $DEPLOY_PASSWORD ssh $DEPLOY_USER@$DEPLOY_SERVER "docker rm myapp || true"
+    - sshpass -p $DEPLOY_PASSWORD ssh $DEPLOY_USER@$DEPLOY_SERVER "docker run -d --name myapp $HARBOR_REGISTRY/$HARBOR_PROJECT/myapp:$IMAGE_TAG"
+  only:
+    - main
